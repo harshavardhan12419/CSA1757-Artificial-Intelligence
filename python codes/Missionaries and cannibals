@@ -1,0 +1,96 @@
+from collections import deque
+
+class State:
+    def __init__(self, m_left, c_left, m_right, c_right, boat):
+        self.m_left = m_left  # Number of missionaries on the left bank
+        self.c_left = c_left  # Number of cannibals on the left bank
+        self.m_right = m_right  # Number of missionaries on the right bank
+        self.c_right = c_right  # Number of cannibals on the right bank
+        self.boat = boat  # Position of the boat (1 for left, 0 for right)
+
+    def is_valid(self):
+        # Check if the state is valid (no side has more cannibals than missionaries)
+        if (self.m_left < 0 or self.c_left < 0 or
+            self.m_right < 0 or self.c_right < 0):
+            return False
+        if (self.m_left > 0 and self.m_left < self.c_left) or \
+           (self.m_right > 0 and self.m_right < self.c_right):
+            return False
+        return True
+
+    def is_goal(self):
+        # Check if the goal state is reached (all missionaries and cannibals on the right)
+        return self.m_left == 0 and self.c_left == 0
+
+    def __hash__(self):
+        return hash((self.m_left, self.c_left, self.boat))
+
+    def __eq__(self, other):
+        return (self.m_left, self.c_left, self.boat) == (other.m_left, other.c_left, other.boat)
+
+def get_possible_moves(state):
+    # Generate all possible moves from the current state
+    moves = []
+    if state.boat == 1:  # Boat on the left
+        for m in range(3):  # 0 to 2 missionaries
+            for c in range(3):  # 0 to 2 cannibals
+                if 0 < m + c <= 2:  # At least one and at most two can move
+                    new_state = State(
+                        state.m_left - m,
+                        state.c_left - c,
+                        state.m_right + m,
+                        state.c_right + c,
+                        0  # Boat moves to the right
+                    )
+                    if new_state.is_valid():
+                        moves.append(new_state)
+    else:  # Boat on the right
+        for m in range(3):  # 0 to 2 missionaries
+            for c in range(3):  # 0 to 2 cannibals
+                if 0 < m + c <= 2:  # At least one and at most two can move
+                    new_state = State(
+                        state.m_left + m,
+                        state.c_left + c,
+                        state.m_right - m,
+                        state.c_right - c,
+                        1  # Boat moves to the left
+                    )
+                    if new_state.is_valid():
+                        moves.append(new_state)
+    return moves
+
+def bfs():
+    initial_state = State(3, 3, 0, 0, 1)  # Start with all on the left bank
+    queue = deque([initial_state])
+    visited = set()
+    visited.add(initial_state)
+
+    while queue:
+        current_state = queue.popleft()
+
+        if current_state.is_goal():
+            return current_state  # Goal state found
+
+        for next_state in get_possible_moves(current_state):
+            if next_state not in visited:
+                visited.add(next_state)
+                queue.append(next_state)
+
+    return None  # No solution found
+
+def print_solution(solution):
+    # Function to print the solution path
+    path = []
+    while solution:
+        path.append(solution)
+        if solution.boat == 1:  # Boat on the left
+            solution = State(solution.m_left + 1, solution.c_left, solution.m_right - 1, solution.c_right, 0)
+        else:  # Boat on the right
+            solution = State(solution.m_left, solution.c_left + 1, solution.m_right, solution.c_right - 1, 1)
+    for state in reversed(path):
+        print(f"Left: {state.m_left}M, {state.c_left}C | Right: {state.m_right}M, {state.c_right}C | Boat: {'Left' if state.boat == 1 else 'Right'}")
+
+# Run the BFS to solve the problem
+solution = bfs()
+if solution:
+   
