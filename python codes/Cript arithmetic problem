@@ -1,0 +1,39 @@
+from itertools import permutations
+
+def solve_cryptarithmetic():
+    # Define the unique letters in the problem
+    letters = 'SENDMORY'
+    
+    # Generate all permutations of digits for the letters
+    for perm in permutations(range(10), len(letters)):
+        # Create a mapping of letters to digits
+        letter_to_digit = dict(zip(letters, perm))
+        
+        # Skip if the leading digit is zero
+        if letter_to_digit['S'] == 0 or letter_to_digit['M'] == 0:
+            continue
+        
+        # Calculate the numbers based on the current mapping
+        send = (letter_to_digit['S'] * 1000 +
+                letter_to_digit['E'] * 100 +
+                letter_to_digit['N'] * 10 +
+                letter_to_digit['D'])
+        
+        more = (letter_to_digit['M'] * 1000 +
+                letter_to_digit['O'] * 100 +
+                letter_to_digit['R'] * 10 +
+                letter_to_digit['E'])
+        
+        money = (letter_to_digit['M'] * 10000 +
+                 letter_to_digit['O'] * 1000 +
+                 letter_to_digit['N'] * 100 +
+                 letter_to_digit['E'] * 10 +
+                 letter_to_digit['Y'])
+        
+        # Check if the equation holds
+        if send + more == money:
+            print(f"SEND = {send}, MORE = {more}, MONEY = {money}")
+            print(f"Mapping: {letter_to_digit}")
+
+# Run the solver
+solve_cryptarithmetic()
