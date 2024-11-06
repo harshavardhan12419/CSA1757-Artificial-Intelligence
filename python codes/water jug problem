@@ -1,0 +1,64 @@
+from collections import deque
+
+class State:
+    def __init__(self, jug1, jug2):
+        self.jug1 = jug1
+        self.jug2 = jug2
+
+    def __hash__(self):
+        return hash((self.jug1, self.jug2))
+
+    def __eq__(self, other):
+        return (self.jug1, self.jug2) == (other.jug1, other.jug2)
+
+    def __str__(self):
+        return f"({self.jug1}, {self.jug2})"
+
+def bfs(capacity1, capacity2, target):
+    initial_state = State(0, 0)
+    queue = deque([initial_state])
+    visited = set()
+    visited.add(initial_state)
+
+    while queue:
+        current_state = queue.popleft()
+
+        # Check if we have reached the target
+        if current_state.jug1 == target or current_state.jug2 == target:
+            return current_state
+
+        # Generate all possible next states
+        next_states = []
+
+        # Fill Jug 1
+        next_states.append(State(capacity1, current_state.jug2))
+        # Fill Jug 2
+        next_states.append(State(current_state.jug1, capacity2))
+        # Empty Jug 1
+        next_states.append(State(0, current_state.jug2))
+        # Empty Jug 2
+        next_states.append(State(current_state.jug1, 0))
+        # Pour Jug 1 into Jug 2
+        pour_to_jug2 = min(current_state.jug1, capacity2 - current_state.jug2)
+        next_states.append(State(current_state.jug1 - pour_to_jug2, current_state.jug2 + pour_to_jug2))
+        # Pour Jug 2 into Jug 1
+        pour_to_jug1 = min(current_state.jug2, capacity1 - current_state.jug1)
+        next_states.append(State(current_state.jug1 + pour_to_jug1, current_state.jug2 - pour_to_jug1))
+
+        for state in next_states:
+            if state not in visited:
+                visited.add(state)
+                queue.append(state)
+
+    return None
+
+if __name__ == "__main__":
+    capacity1 = 4  # Capacity of Jug 1
+    capacity2 = 3  # Capacity of Jug 2
+    target = 2     # Target amount of water
+
+    result = bfs(capacity1, capacity2, target)
+    if result:
+        print(f"Found a solution: {result}")
+    else:
+        print("No solution exists.")
