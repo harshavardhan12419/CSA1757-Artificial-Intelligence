@@ -1,72 +1,62 @@
 class VacuumCleanerAgent:
     def __init__(self, grid):
-        self.grid = grid  # 0 for clean, 1 for dirty
-        self.position = (0, 0)  # Start at the top-left corner
-        self.cleaned_positions = []  # Keep track of cleaned positions
-
-    def is_dirty(self, position):
-        x, y = position
-        return self.grid[x][y] == 1
-
-    def clean(self, position):
-        x, y = position
-        if self.is_dirty(position):
-            self.grid[x][y] = 0  # Clean the dirt
-            self.cleaned_positions.append(position)
-            print(f"Cleaned position: {position}")
+        self.grid = grid
+        self.position = (0, 0)  # Starting position
+        self.cleaned = 0  # Count of cleaned squares
 
     def move(self, direction):
         x, y = self.position
-        if direction == 'up' and x > 0:
+        if direction == "up" and x > 0:
             self.position = (x - 1, y)
-        elif direction == 'down' and x < len(self.grid) - 1:
+        elif direction == "down" and x < len(self.grid) - 1:
             self.position = (x + 1, y)
-        elif direction == 'left' and y > 0:
+        elif direction == "left" and y > 0:
             self.position = (x, y - 1)
-        elif direction == 'right' and y < len(self.grid[0]) - 1:
+        elif direction == "right" and y < len(self.grid[0]) - 1:
             self.position = (x, y + 1)
 
-    def perform_action(self):
+    def clean(self):
         x, y = self.position
-        # Clean current position
-        self.clean(self.position)
+        if self.grid[x][y] == 1:  # If the cell is dirty
+            self.grid[x][y] = 0  # Clean the cell
+            self.cleaned += 1
+            print(f"Cleaned position: {self.position}")
 
-        # Possible moves: up, down, left, right
-        for direction in ['up', 'down', 'left', 'right']:
-            self.move(direction)
-            if self.is_dirty(self.position):
-                self.clean(self.position)
-            self.move_back(direction)
-
-    def move_back(self, direction):
+    def is_dirty(self):
         x, y = self.position
-        if direction == 'up':
-            self.position = (x + 1, y)
-        elif direction == 'down':
-            self.position = (x - 1, y)
-        elif direction == 'left':
-            self.position = (x, y + 1)
-        elif direction == 'right':
-            self.position = (x, y - 1)
+        return self.grid[x][y] == 1
 
     def run(self):
-        # Continue until all dirt is cleaned
-        while any(1 in row for row in self.grid):
-            self.perform_action()
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[0])):
+                self.position = (i, j)  # Move to the next cell
+                self.clean()
+                # Optionally, you can add logic to move to the next cell in a more complex way
 
-        print("All positions cleaned!")
-        print("Cleaned positions:", self.cleaned_positions)
-        print("Final grid state:")
+    def display_grid(self):
         for row in self.grid:
-            print(row)
+            print(" ".join(str(cell) for cell in row))
+        print()
 
-# Example grid with 1 representing dirt and 0 representing clean
+# Example grid (1 represents dirty, 0 represents clean)
 grid = [
-    [1, 0, 0],
-    [0, 1, 1],
-    [0, 0, 0]
+    [1, 0, 1, 1],
+    [0, 1, 0, 0],
+    [1, 1, 1, 0],
+    [0, 0, 0, 1]
 ]
 
-# Create a Vacuum Cleaner Agent and run it
+# Create the vacuum cleaner agent
 agent = VacuumCleanerAgent(grid)
-          agent.run()
+
+# Display initial grid
+print("Initial Grid:")
+agent.display_grid()
+
+# Run the vacuum cleaner agent
+agent.run()
+
+# Display final grid
+print("Final Grid:")
+agent.display_grid()
+print(f"Total cleaned: {agent.cleaned}")
