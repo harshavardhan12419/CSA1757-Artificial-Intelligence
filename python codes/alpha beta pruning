@@ -1,0 +1,64 @@
+class Node:
+    def __init__(self, value=None):
+        self.value = value
+        self.children = []
+
+def alpha_beta(node, depth, alpha, beta, maximizing_player):
+    if depth == 0 or not node.children:
+        return node.value
+
+    if maximizing_player:
+        max_eval = float('-inf')
+        for child in node.children:
+            eval = alpha_beta(child, depth - 1, alpha, beta, False)
+            max_eval = max(max_eval, eval)
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break  # Beta cut-off
+        return max_eval
+    else:
+        min_eval = float('inf')
+        for child in node.children:
+            eval = alpha_beta(child, depth - 1, alpha, beta, True)
+            min_eval = min(min_eval, eval)
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break  # Alpha cut-off
+        return min_eval
+
+# Sample tree construction
+def create_sample_tree():
+    # Create leaf nodes
+    leaf1 = Node(value=3)
+    leaf2 = Node(value=5)
+    leaf3 = Node(value=6)
+    leaf4 = Node(value=9)
+    leaf5 = Node(value=1)
+    leaf6 = Node(value=2)
+    leaf7 = Node(value=0)
+    leaf8 = Node(value=-1)
+
+    # Create intermediate nodes
+    node1 = Node()  # Maximizing node
+    node1.children = [leaf1, leaf2]
+
+    node2 = Node()  # Minimizing node
+    node2.children = [leaf3, leaf4]
+
+    node3 = Node()  # Minimizing node
+    node3.children = [leaf5, leaf6]
+
+    node4 = Node()  # Maximizing node
+    node4.children = [leaf7, leaf8]
+
+    # Create root node
+    root = Node()  # Maximizing node
+    root.children = [node1, node2, node3, node4]
+
+    return root
+
+# Create the sample tree and run alpha-beta pruning
+root = create_sample_tree()
+result = alpha_beta(root, depth=3, alpha=float('-inf'), beta=float('inf'), maximizing_player=True)
+
+print("Optimal value:", result)
